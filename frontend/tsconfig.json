@@ -1,4 +1,14 @@
 {
+  "compilerOptions": {
+    /* Alias imports */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@features/*": ["./src/features/*"]
+    },
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
