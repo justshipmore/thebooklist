@@ -1,27 +1,29 @@
-import { createLogger, format, transports } from 'winston';
-const { combine, timestamp, json, colorize } = format;
+import winston from 'winston';
 
 export const MORGAN_FORMAT = ':method :url :status :response-time ms';
 
-// Custom format for console logging with colors
-const consoleLogFormat = format.combine(
-  format.colorize({ all: true }),
-  format.printf((info) => `[${info.timestamp}]: ${info.message}`)
-);
+const LOG_LEVEL = process.env.NODE_ENV === 'production' ? 'info' : 'debug';
 
-// Create a Winston logger
-const logger = createLogger({
-  level: 'info',
-  format: combine(
-    colorize(),
-    timestamp({ format: 'DD-MMM-YYYY HH:mm:ss' }),
-    json()
+const colorizer = winston.format.colorize();
+const logger = winston.createLogger({
+  level: LOG_LEVEL,
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'DD-MMM-YYYY HH:mm:ss' }),
+    winston.format.align(),
+    winston.format.simple()
   ),
   transports: [
-    new transports.Console({
-      format: consoleLogFormat
+    new winston.transports.Console({
+      // Custom format for console logging with colors
+      format: winston.format.printf((msg) =>
+        colorizer.colorize(msg.level, `[${msg.timestamp}] ${msg.level}: ${msg.message}`)
+      )
     }),
-    new transports.File({ filename: 'logs/app.log' })
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error'
+    }),
+    new winston.transports.File({ filename: 'logs/app.log' })
   ]
 });
 
